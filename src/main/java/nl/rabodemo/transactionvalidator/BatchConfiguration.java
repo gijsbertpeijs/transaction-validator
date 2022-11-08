@@ -12,6 +12,7 @@ import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourc
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
@@ -39,6 +40,12 @@ public class BatchConfiguration {
     @Value("${xml.file}")
     private String xmlFile;
 
+    @Value("${csv.skip.limit}")
+    private int csvSkipLimit;
+
+    @Value("${xml.skip.limit}")
+    private int xmlSkipLimit;
+
     @Bean
     public FlatFileItemReader<Transaction> csvReader() {
         return new FlatFileItemReaderBuilder<Transaction>()
@@ -63,6 +70,7 @@ public class BatchConfiguration {
                 .name("xmlReader")
                 .resource(new ClassPathResource(xmlFile))
                 .addFragmentRootElements("record")
+                .strict(true)
                 .unmarshaller(transactionMarshaller)
                 .build();
     }
@@ -99,6 +107,9 @@ public class BatchConfiguration {
                 .reader(csvReader())
                 .processor(processor())
                 .writer(writer)
+                .faultTolerant()
+                .skip(FlatFileParseException.class)
+                .skipLimit(csvSkipLimit)
                 .build();
     }
 
@@ -109,6 +120,9 @@ public class BatchConfiguration {
                 .reader(xmlReader())
                 .processor(processor())
                 .writer(writer)
+                .faultTolerant()
+                .skip(NumberFormatException.class)
+                .skipLimit(xmlSkipLimit)
                 .build();
     }
 }
