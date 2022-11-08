@@ -16,6 +16,7 @@ import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
@@ -32,11 +33,17 @@ public class BatchConfiguration {
     @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
+    @Value("${csv.file}")
+    private String csvFile;
+
+    @Value("${xml.file}")
+    private String xmlFile;
+
     @Bean
     public FlatFileItemReader<Transaction> csvReader() {
         return new FlatFileItemReaderBuilder<Transaction>()
                 .name("transactionItemReader")
-                .resource(new ClassPathResource("records.csv"))
+                .resource(new ClassPathResource(csvFile))
                 .delimited()
                 .names(new String[]{"reference", "accountNumber", "description", "startBalance", "mutation", "endBalance"})
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{
@@ -54,7 +61,7 @@ public class BatchConfiguration {
 
         return new StaxEventItemReaderBuilder<Transaction>()
                 .name("xmlReader")
-                .resource(new ClassPathResource("records.xml"))
+                .resource(new ClassPathResource(xmlFile))
                 .addFragmentRootElements("record")
                 .unmarshaller(transactionMarshaller)
                 .build();
