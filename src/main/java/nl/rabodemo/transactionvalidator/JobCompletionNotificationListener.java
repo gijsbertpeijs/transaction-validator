@@ -25,6 +25,7 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
     @Override
     public void afterJob(JobExecution jobExecution) {
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
+            log.info("");
             log.info("---------------------------------------------------------");
             log.info("-- Validations results ----------------------------------");
             log.info("---------------------------------------------------------");
@@ -53,6 +54,7 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
 
             log.info("");
             log.info("---------------------------------------------------------");
+            log.info("");
         }
     }
 }

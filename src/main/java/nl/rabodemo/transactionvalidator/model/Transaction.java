@@ -17,13 +17,14 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(int reference, String accountNumber, String description, BigDecimal startBalance, BigDecimal mutation, BigDecimal endBalance) {
+    public Transaction(int reference, String accountNumber, String description, BigDecimal startBalance, BigDecimal mutation, BigDecimal endBalance, int valid) {
         this.reference = reference;
         this.accountNumber = accountNumber;
         this.description = description;
         this.startBalance = startBalance;
         this.mutation = mutation;
         this.endBalance = endBalance;
+        this.valid = valid;
     }
 
     public Transaction(int reference, String description) {
