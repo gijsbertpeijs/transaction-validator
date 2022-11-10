@@ -17,7 +17,6 @@ import org.springframework.batch.item.file.FlatFileParseException;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.xml.builder.StaxEventItemReaderBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,10 +28,8 @@ import javax.sql.DataSource;
 @Configuration
 @EnableBatchProcessing
 public class BatchConfiguration {
-    @Autowired
     public JobBuilderFactory jobBuilderFactory;
 
-    @Autowired
     public StepBuilderFactory stepBuilderFactory;
 
     @Value("${csv.file}")
@@ -47,6 +44,11 @@ public class BatchConfiguration {
     @Value("${xml.skip.limit}")
     private int xmlSkipLimit;
 
+    public BatchConfiguration(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+    }
+
     @Bean
     public FlatFileItemReader<Transaction> csvReader() {
         return new FlatFileItemReaderBuilder<Transaction>()
@@ -57,7 +59,7 @@ public class BatchConfiguration {
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {{
                     setTargetType(Transaction.class);
                 }})
-                .encoding("ISO-8859-1") // should be good but console logging still shows weird characters
+                .encoding("ISO-8859-1")
                 .linesToSkip(1)
                 .build();
     }
