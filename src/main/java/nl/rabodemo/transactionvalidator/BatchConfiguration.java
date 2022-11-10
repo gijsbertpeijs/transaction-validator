@@ -7,6 +7,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.step.skip.SkipPolicy;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
@@ -81,6 +82,11 @@ public class BatchConfiguration {
     }
 
     @Bean
+    public SkipPolicy csvSkipper() {
+        return new CsvErrorSkipper();
+    }
+
+    @Bean
     public JdbcBatchItemWriter<Transaction> writer(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Transaction>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
@@ -109,6 +115,7 @@ public class BatchConfiguration {
                 .writer(writer)
                 .faultTolerant()
                 .skip(FlatFileParseException.class)
+                .skipPolicy(csvSkipper())
                 .skipLimit(csvSkipLimit)
                 .build();
     }
