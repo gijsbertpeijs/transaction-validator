@@ -14,9 +14,9 @@ public class CsvErrorSkipper implements SkipPolicy {
     public boolean shouldSkip(Throwable throwable, int skipCounter) throws SkipLimitExceededException {
 
         if (throwable instanceof FlatFileParseException) {
-            log.error("Skipping line {} due to malformed CSV", ((FlatFileParseException) throwable).getLineNumber());
+            log.error("Skipping line " + ((FlatFileParseException) throwable).getLineNumber() + " due to malformed CSV" );
         } else {
-            log.error("Skipping line due to generic error: {}", throwable.getMessage());
+            log.error("Skipping line due to generic error:" + throwable.getMessage());
         }
 
         return false;
