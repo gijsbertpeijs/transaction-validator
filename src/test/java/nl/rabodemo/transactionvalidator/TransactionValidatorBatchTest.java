@@ -1,9 +1,15 @@
 package nl.rabodemo.transactionvalidator;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.After;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.*;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.JobRepositoryTestUtils;
@@ -19,6 +25,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.jdbc.JdbcTestUtils;
+
+import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,6 +49,16 @@ class TransactionValidatorBatchTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    private ListAppender<ILoggingEvent> listAppender;
+
+    @BeforeEach
+    void setup() {
+        Logger testLogger = (Logger) LoggerFactory.getLogger(JobCompletionNotificationListener.class);
+        listAppender = new ListAppender<>();
+        listAppender.start();
+        testLogger.addAppender(listAppender);
+    }
 
     @AfterEach
     void tearDown() {
@@ -65,5 +83,19 @@ class TransactionValidatorBatchTest {
 
         assertThat(actualJobInstance.getJobName(), is("importTransactionJob"));
         assertThat(actualJobExitStatus.getExitCode(), is("COMPLETED"));
+
+        List<ILoggingEvent> logsList = listAppender.list;
+        Assertions.assertEquals(17, logsList.size());
+        Assertions.assertEquals("Transactions with incorrect end balance:", logsList.get(5).getMessage());
+        Assertions.assertEquals("Reference 112806, Description: Tickets for Jan Bakker.", logsList.get(6).getMessage());
+        Assertions.assertEquals("Reference 176186, Description: Subscription from Peter Bakker.", logsList.get(7).getMessage());
+        Assertions.assertEquals("Reference 145501, Description: Flowers for Daniël Theuß.", logsList.get(8).getMessage());
+        Assertions.assertEquals("", logsList.get(9).getMessage());
+
+        Assertions.assertEquals("Transactions with duplicate reference:", logsList.get(10).getMessage());
+        Assertions.assertEquals("Reference 112806, Description: Subscription from Willem King.", logsList.get(11).getMessage());
+        Assertions.assertEquals("Reference 112806, Description: Tickets for Jan Bakker.", logsList.get(12).getMessage());
+        Assertions.assertEquals("Reference 112806, Description: Clothes from Daniël de Vries.", logsList.get(13).getMessage());
+        Assertions.assertEquals("", logsList.get(14).getMessage());
     }
 }

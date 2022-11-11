@@ -37,8 +37,8 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
                     (rs, row) -> new Transaction(
                             rs.getInt(1),
                             rs.getString(2))
-            ).forEach(transaction -> log.info("Reference {}, Description: {}.",
-                    transaction.getReference(), transaction.getDescription()));
+            ).forEach(transaction -> log.info("Reference " + transaction.getReference() + ", Description: " +
+                    transaction.getDescription() + "."));
 
             log.info("");
             log.info("Transactions with duplicate reference:");
@@ -48,9 +48,8 @@ public class JobCompletionNotificationListener extends JobExecutionListenerSuppo
                     (rs, row) -> new Transaction(
                             rs.getInt(1),
                             rs.getString(2))
-            ).forEach(transaction -> log.info("Reference {}, Description: {}.",
-                    transaction.getReference(), transaction.getDescription()));
-
+            ).forEach(transaction -> log.info("Reference " + transaction.getReference() + ", Description: " +
+                            transaction.getDescription() + "."));
 
             log.info("");
             log.info("---------------------------------------------------------");
